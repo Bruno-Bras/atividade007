@@ -55,12 +55,30 @@ def home():
 @app.post("/add")
 def add():
     title = request.form.get("title", "").strip()
+    contact_id = request.form.get("contact_id", "").strip()
+
     if not title:
-        flash("Please write something")
+        flash("Digite a descrição da tarefa")
         return redirect(url_for("home"))
-    db.session.add(Task(title=title))
+
+    contact = None
+
+    if contact_id:
+        contact = db.session.get(Contact, int(contact_id))
+
+        if contact is None:
+            flash("Contato inválido")
+            return redirect(url_for("home"))
+
+    task = Task(
+        title=title,
+        contact=contact
+    )
+
+    db.session.add(task)
     db.session.commit()
-    flash("Atividade adicionada")
+
+    flash("Tarefa adicionada com sucesso!")
     return redirect(url_for("home"))
 
 
