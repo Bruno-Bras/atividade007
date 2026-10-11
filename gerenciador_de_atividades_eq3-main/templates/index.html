@@ -44,9 +44,25 @@
   <h2>Adicionar tarefa</h2>
 
   <form action="{{ url_for('add') }}" method="post" class="add-form">
-    <input name="title" required placeholder="Descrição da tarefa">
-    <button type="submit">Adicionar</button>
-  </form>
+  <input
+    name="title"
+    required
+    placeholder="Descrição da tarefa"
+  >
+
+  <label for="contact_id">Responsável:</label>
+  <select name="contact_id" id="contact_id">
+    <option value="">Sem responsável</option>
+
+    {% for contact in contacts %}
+      <option value="{{ contact.id }}">
+        {{ contact.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Adicionar</button>
+</form>
 </section>
 
 <section class="card">
