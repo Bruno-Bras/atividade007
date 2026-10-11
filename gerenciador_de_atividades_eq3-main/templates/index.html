@@ -3,6 +3,25 @@
 {% block content %}
 
 <section class="card">
+  <h2>Adicionar contato</h2>
+
+  <form action="{{ url_for('add_contact') }}" method="post">
+    <input
+      type="text"
+      name="name"
+      placeholder="Nome do contato"
+      required
+    >
+    <input
+      type="email"
+      name="email"
+      placeholder="E-mail (opcional)"
+    >
+    <button type="submit">Cadastrar contato</button>
+  </form>
+</section>
+
+<section class="card">
   <form action="{{ url_for('add') }}" method="post" class="add-form">
     <input name="title" required placeholder="What do you need to do?">
     <button type="submit">Adicionar</button>
