@@ -22,42 +22,53 @@
 </section>
 
 <section class="card">
+  <h2>Contatos cadastrados</h2>
+
+  {% if contacts %}
+    <ul>
+      {% for contact in contacts %}
+        <li>
+          <strong>{{ contact.name }}</strong>
+          {% if contact.email %}
+            — {{ contact.email }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">Nenhum contato cadastrado ainda.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Adicionar tarefa</h2>
+
   <form action="{{ url_for('add') }}" method="post" class="add-form">
-    <input name="title" required placeholder="What do you need to do?">
+    <input name="title" required placeholder="Descrição da tarefa">
     <button type="submit">Adicionar</button>
   </form>
 </section>
 
-<!-- Static demo version (NO Jinja) -->
-
-    <section class="card">
-    {% if tasks %}
-      <ul class="tasks">
+<section class="card">
+  {% if tasks %}
+    <ul class="tasks">
       {% for task in tasks %}
-          <li class="task{% if task.done %} done{% endif %}">
-
-            <form action="{{ url_for('toggle', task_id=task.id) }}" method="post">
-
-              <button class="toggle" type="submit">✓</button>
-
-            </form>
+        <li class="task{% if task.done %} done{% endif %}">
+          <form action="{{ url_for('toggle', task_id=task.id) }}" method="post">
+            <button class="toggle" type="submit">✓</button>
+          </form>
 
           <span class="title">{{ task.title }}</span>
 
           <form action="{{ url_for('delete', task_id=task.id) }}" method="post">
-
-              <button class="delete" title="Delete" type="submit">×</button>
-
+            <button class="delete" title="Excluir" type="submit">×</button>
           </form>
-          
-          </li>
-     {% endfor %}
-     </ul>
-
-      {% else %}
-        <p class="empty">Nenhuma tarefa ainda.</p>
-      {% endif %}
-
-    </section>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">Nenhuma tarefa ainda.</p>
+  {% endif %}
+</section>
 
 {% endblock %}
