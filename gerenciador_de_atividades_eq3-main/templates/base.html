@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flask To-Do (Base Layout)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1 class="logo">📝 Flask To-Do</h1>
+    </header>
+
+    {% with messages = get_flashed_messages() %}
+
+    {% if messages %}
+
+    <ul class="flash">
+      {% for message in messages %}
+
+      <li>{{message}}</li>
+
+      {% endfor %}
+    </ul>
+
+    {% endif %} {% block content %} {% endblock %} {% endwith %}
+
+
+  </main>
+    <footer class="footer">
+      <small>Built with Flask &amp; SQLite</small>
+    </footer>
+</body>
+</html>
