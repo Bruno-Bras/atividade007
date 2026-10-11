@@ -75,6 +75,11 @@
           </form>
 
           <span class="title">{{ task.title }}</span>
+          {% if task.contact %}
+  <small>Responsável: {{ task.contact.name }}</small>
+{% else %}
+  <small>Sem responsável</small>
+{% endif %}
 
           <form action="{{ url_for('delete', task_id=task.id) }}" method="post">
             <button class="delete" title="Excluir" type="submit">×</button>
