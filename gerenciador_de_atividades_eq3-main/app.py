@@ -48,10 +48,9 @@ def add_contact():
 
 @app.get("/")
 def home():
-
     tasks = Task.query.order_by(Task.done.asc(), Task.created_at.desc()).all()
-    return render_template("index.html", tasks=tasks)
-
+    contacts = Contact.query.order_by(Contact.name.asc()).all()
+    return render_template("index.html", tasks=tasks, contacts=contacts)
 
 @app.post("/add")
 def add():
