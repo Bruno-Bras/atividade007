@@ -3,42 +3,93 @@
 {% block content %}
 
 <section class="card">
-  <form action="{{ url_for('add') }}" method="post" class="add-form">
-    <input name="title" required placeholder="What do you need to do?">
-    <button type="submit">Adicionar</button>
+  <h2>Adicionar contato</h2>
+
+  <form action="{{ url_for('add_contact') }}" method="post">
+    <input
+      type="text"
+      name="name"
+      placeholder="Nome do contato"
+      required
+    >
+    <input
+      type="email"
+      name="email"
+      placeholder="E-mail (opcional)"
+    >
+    <button type="submit">Cadastrar contato</button>
   </form>
 </section>
 
-<!-- Static demo version (NO Jinja) -->
+<section class="card">
+  <h2>Contatos cadastrados</h2>
 
-    <section class="card">
-    {% if tasks %}
-      <ul class="tasks">
+  {% if contacts %}
+    <ul>
+      {% for contact in contacts %}
+        <li>
+          <strong>{{ contact.name }}</strong>
+          {% if contact.email %}
+            — {{ contact.email }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">Nenhum contato cadastrado ainda.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Adicionar tarefa</h2>
+
+  <form action="{{ url_for('add') }}" method="post" class="add-form">
+  <input
+    name="title"
+    required
+    placeholder="Descrição da tarefa"
+  >
+
+  <label for="contact_id">Responsável:</label>
+  <select name="contact_id" id="contact_id">
+    <option value="">Sem responsável</option>
+
+    {% for contact in contacts %}
+      <option value="{{ contact.id }}">
+        {{ contact.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Adicionar</button>
+</form>
+</section>
+
+<section class="card">
+  {% if tasks %}
+    <ul class="tasks">
       {% for task in tasks %}
-          <li class="task{% if task.done %} done{% endif %}">
-
-            <form action="{{ url_for('toggle', task_id=task.id) }}" method="post">
-
-              <button class="toggle" type="submit">✓</button>
-
-            </form>
+        <li class="task{% if task.done %} done{% endif %}">
+          <form action="{{ url_for('toggle', task_id=task.id) }}" method="post">
+            <button class="toggle" type="submit">✓</button>
+          </form>
 
           <span class="title">{{ task.title }}</span>
+          {% if task.contact %}
+  <small>Responsável: {{ task.contact.name }}</small>
+{% else %}
+  <small>Sem responsável</small>
+{% endif %}
 
           <form action="{{ url_for('delete', task_id=task.id) }}" method="post">
-
-              <button class="delete" title="Delete" type="submit">×</button>
-
+            <button class="delete" title="Excluir" type="submit">×</button>
           </form>
-          
-          </li>
-     {% endfor %}
-     </ul>
-
-      {% else %}
-        <p class="empty">Nenhuma tarefa ainda.</p>
-      {% endif %}
-
-    </section>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">Nenhuma tarefa ainda.</p>
+  {% endif %}
+</section>
 
 {% endblock %}
