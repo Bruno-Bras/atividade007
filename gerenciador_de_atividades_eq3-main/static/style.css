@@ -48,3 +48,19 @@ body { background: #0b0f14; color: #e5eef7; margin: 0; }
   width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #334155;
   background: #0b1220; color: #dbeafe; color-scheme: dark;
 }
+.task { padding-left: 10px; }
+.badge {
+  display: inline-block; align-self: flex-start; padding: 2px 10px;
+  border-radius: 999px; font-size: 0.75rem; font-weight: 600; color: #0b0f14;
+}
+
+/* a fazer = azul, fazendo = amarelo, concluída = verde, atrasada = vermelho */
+.badge.status-a_fazer   { background: #60a5fa; }
+.badge.status-fazendo   { background: #facc15; }
+.badge.status-concluida { background: #4ade80; }
+.badge.status-atrasada  { background: #f87171; }
+
+.task.status-a_fazer   { border-left: 4px solid #60a5fa; }
+.task.status-fazendo   { border-left: 4px solid #facc15; }
+.task.status-concluida { border-left: 4px solid #4ade80; }
+.task.status-atrasada  { border-left: 4px solid #f87171; }
