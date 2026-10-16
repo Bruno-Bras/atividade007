@@ -35,3 +35,12 @@ body { background: #0b0f14; color: #e5eef7; margin: 0; }
 }
 .empty { opacity: 0.75; }
 .footer { text-align: center; opacity: 0.5; margin: 24px 0 40px; }
+.task .info { display: flex; flex-direction: column; gap: 4px; }
+.task small { opacity: 0.75; }
+.add-form { flex-wrap: wrap; align-items: center; }
+.add-form input[name="title"] { flex: 1 1 100%; }
+.add-form input[type="date"] { flex: 0 0 auto; color-scheme: dark; }
+.add-form select {
+  padding: 12px; border-radius: 10px; border: 1px solid #334155;
+  background: #0b1220; color: #dbeafe; color-scheme: dark;
+}
