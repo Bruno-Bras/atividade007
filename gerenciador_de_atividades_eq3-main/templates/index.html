@@ -49,6 +49,14 @@
     required
     placeholder="Descrição da tarefa"
   >
+  <input type="date" name="prazo" required>
+  
+  <label for="prioridade">Prioridade:</label>
+  <select name="prioridade" id="prioridade">
+    <option value="baixa">baixa</option>
+    <option value="media" selected>media</option>
+    <option value="alta">alta</option>
+  </select>
 
   <label for="contact_id">Responsável:</label>
   <select name="contact_id" id="contact_id">
@@ -69,17 +77,24 @@
   {% if tasks %}
     <ul class="tasks">
       {% for task in tasks %}
-        <li class="task{% if task.done %} done{% endif %}">
-          <form action="{{ url_for('toggle', task_id=task.id) }}" method="post">
-            <button class="toggle" type="submit">✓</button>
+                      <li class="task status-{{ task.status_atual }}{% if task.status == 'concluida' %} done{% endif %}">
+                      <form action="{{ url_for('set_status', task_id=task.id) }}" method="post">
+            <select name="status" class="status-select" onchange="this.form.submit()">
+              {% for valor, rotulo in status_opcoes.items() %}
+                <option value="{{ valor }}" {% if task.status == valor %}selected{% endif %}>{{ rotulo }}</option>
+              {% endfor %}
+            </select>
           </form>
 
-          <span class="title">{{ task.title }}</span>
-          {% if task.contact %}
-  <small>Responsável: {{ task.contact.name }}</small>
-{% else %}
-  <small>Sem responsável</small>
-{% endif %}
+          <div class="info">
+            <span class="badge status-{{ task.status_atual }}">{{ task.status_rotulo }}</span>
+            <span class="title">{{ task.title }}</span>
+            <small>
+              {% if task.contact %}Responsável: {{ task.contact.name }}{% else %}Sem responsável{% endif %}
+              · Prazo: {% if task.prazo %}{{ task.prazo.strftime('%d/%m/%Y') }}{% else %}sem prazo{% endif %}
+              · Prioridade: {{ {'baixa': 'Baixa', 'media': 'Média', 'alta': 'Alta'}[task.prioridade] }}
+            </small>
+          </div>
 
           <form action="{{ url_for('delete', task_id=task.id) }}" method="post">
             <button class="delete" title="Excluir" type="submit">×</button>

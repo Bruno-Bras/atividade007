@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
-
+PRIORIDADES = ["baixa", "media", "alta"]
+STATUS = {"a_fazer": "A fazer", "fazendo": "Fazendo", "concluida": "Concluída"}  
+STATUS_ROTULOS = {**STATUS, "atrasada": "Atrasada"}
 
 app=Flask(__name__)
 
@@ -22,10 +24,22 @@ class Contact(db.Model):
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(160), nullable=False)
-    done = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    prazo = db.Column(db.Date, nullable=True)
+    prioridade = db.Column(db.String(10), default="media", nullable=False)
+    status = db.Column(db.String(10), default="a_fazer", nullable=False)
+
     contact_id = db.Column(db.Integer, db.ForeignKey("contact.id"), nullable=True)
     contact = db.relationship("Contact", backref="tasks")
+    @property
+    def status_atual(self):
+        if self.status != "concluida" and self.prazo and self.prazo < date.today():
+            return "atrasada"
+        return self.status
+
+    @property
+    def status_rotulo(self):
+        return STATUS_ROTULOS[self.status_atual]
 
 
 with app.app_context():
@@ -48,17 +62,29 @@ def add_contact():
 
 @app.get("/")
 def home():
-    tasks = Task.query.order_by(Task.done.asc(), Task.created_at.desc()).all()
+    tasks = Task.query.order_by((Task.status == "concluida").asc(), Task.created_at.desc()).all()
     contacts = Contact.query.order_by(Contact.name.asc()).all()
-    return render_template("index.html", tasks=tasks, contacts=contacts)
+    return render_template("index.html", tasks=tasks, contacts=contacts, status_opcoes=STATUS)
 
 @app.post("/add")
 def add():
     title = request.form.get("title", "").strip()
     contact_id = request.form.get("contact_id", "").strip()
+    prazo_str = request.form.get("prazo", "").strip()
+    prioridade = request.form.get("prioridade", "media")
 
     if not title:
         flash("Digite a descrição da tarefa")
+        return redirect(url_for("home"))
+
+    try:
+        prazo = date.fromisoformat(prazo_str)
+    except ValueError:
+        flash("Informe um prazo válido")
+        return redirect(url_for("home"))
+
+    if prioridade not in PRIORIDADES:
+        flash("Prioridade inválida")
         return redirect(url_for("home"))
 
     contact = None
@@ -72,7 +98,9 @@ def add():
 
     task = Task(
         title=title,
-        contact=contact
+        contact=contact,
+        prazo=prazo,
+        prioridade=prioridade,
     )
 
     db.session.add(task)
@@ -90,12 +118,18 @@ def delete(task_id):
     flash("Atividade deletada ")
     return redirect(url_for("home"))
 
-@app.post("/toggle/<int:task_id>")
-def toggle(task_id):
-    task = Task.query.get_or_404(task_id)
-    task.done = not task.done
+@app.post("/status/<int:task_id>")
+def set_status(task_id):
+    task = db.get_or_404(Task, task_id)
+    novo_status = request.form.get("status", "")
+
+    if novo_status not in STATUS:
+        flash("Status inválido")
+        return redirect(url_for("home"))
+
+    task.status = novo_status
     db.session.commit()
-    flash("Marcado como concluído" if task.done else "Ativo")
+    flash("Status atualizado")
     return redirect(url_for("home"))
 
 if __name__ == '__main__':
