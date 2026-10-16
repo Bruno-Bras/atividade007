@@ -62,9 +62,21 @@ def home():
 def add():
     title = request.form.get("title", "").strip()
     contact_id = request.form.get("contact_id", "").strip()
+    prazo_str = request.form.get("prazo", "").strip()
+    prioridade = request.form.get("prioridade", "media")
 
     if not title:
         flash("Digite a descrição da tarefa")
+        return redirect(url_for("home"))
+
+    try:
+        prazo = date.fromisoformat(prazo_str)
+    except ValueError:
+        flash("Informe um prazo válido")
+        return redirect(url_for("home"))
+
+    if prioridade not in PRIORIDADES:
+        flash("Prioridade inválida")
         return redirect(url_for("home"))
 
     contact = None
@@ -78,7 +90,9 @@ def add():
 
     task = Task(
         title=title,
-        contact=contact
+        contact=contact,
+        prazo=prazo,
+        prioridade=prioridade,
     )
 
     db.session.add(task)

@@ -49,6 +49,14 @@
     required
     placeholder="Descrição da tarefa"
   >
+  <input type="date" name="prazo" required>
+  
+  <label for="prioridade">Prioridade:</label>
+  <select name="prioridade" id="prioridade">
+    <option value="baixa">baixa</option>
+    <option value="media" selected>media</option>
+    <option value="alta">alta</option>
+  </select>
 
   <label for="contact_id">Responsável:</label>
   <select name="contact_id" id="contact_id">
