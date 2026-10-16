@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
+PRIORIDADES = ["baixa", "media", "alta"]
+STATUS = ["a_fazer", "fazendo", "concluida"]
 
 
 app=Flask(__name__)
@@ -24,6 +26,10 @@ class Task(db.Model):
     title = db.Column(db.String(160), nullable=False)
     done = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    prazo = db.Column(db.Date, nullable=True)
+    prioridade = db.Column(db.String(10), default="media", nullable=False)
+    status = db.Column(db.String(10), default="a_fazer", nullable=False)
+
     contact_id = db.Column(db.Integer, db.ForeignKey("contact.id"), nullable=True)
     contact = db.relationship("Contact", backref="tasks")
 
