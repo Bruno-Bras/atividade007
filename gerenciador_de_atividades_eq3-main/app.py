@@ -4,6 +4,7 @@ from datetime import datetime, timezone, date
 
 PRIORIDADES = ["baixa", "media", "alta"]
 STATUS = {"a_fazer": "A fazer", "fazendo": "Fazendo", "concluida": "Concluída"}  
+STATUS_ROTULOS = {**STATUS, "atrasada": "Atrasada"}
 
 app=Flask(__name__)
 
@@ -30,6 +31,15 @@ class Task(db.Model):
 
     contact_id = db.Column(db.Integer, db.ForeignKey("contact.id"), nullable=True)
     contact = db.relationship("Contact", backref="tasks")
+    @property
+    def status_atual(self):
+        if self.status != "concluida" and self.prazo and self.prazo < date.today():
+            return "atrasada"
+        return self.status
+
+    @property
+    def status_rotulo(self):
+        return STATUS_ROTULOS[self.status_atual]
 
 
 with app.app_context():

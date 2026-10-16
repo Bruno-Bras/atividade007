@@ -77,7 +77,7 @@
   {% if tasks %}
     <ul class="tasks">
       {% for task in tasks %}
-                        <li class="task{% if task.status == 'concluida' %} done{% endif %}">
+                      <li class="task status-{{ task.status_atual }}{% if task.status == 'concluida' %} done{% endif %}">
                       <form action="{{ url_for('set_status', task_id=task.id) }}" method="post">
             <select name="status" class="status-select" onchange="this.form.submit()">
               {% for valor, rotulo in status_opcoes.items() %}
@@ -87,6 +87,7 @@
           </form>
 
           <div class="info">
+            <span class="badge status-{{ task.status_atual }}">{{ task.status_rotulo }}</span>
             <span class="title">{{ task.title }}</span>
             <small>
               {% if task.contact %}Responsável: {{ task.contact.name }}{% else %}Sem responsável{% endif %}
