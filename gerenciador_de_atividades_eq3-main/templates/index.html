@@ -77,17 +77,19 @@
   {% if tasks %}
     <ul class="tasks">
       {% for task in tasks %}
-        <li class="task{% if task.done %} done{% endif %}">
-          <form action="{{ url_for('toggle', task_id=task.id) }}" method="post">
+                <li class="task{% if task.done %} done{% endif %}">
+            <form action="{{ url_for('add_contact') }}" method="post" class="add-form">
             <button class="toggle" type="submit">✓</button>
           </form>
 
-          <span class="title">{{ task.title }}</span>
-          {% if task.contact %}
-  <small>Responsável: {{ task.contact.name }}</small>
-{% else %}
-  <small>Sem responsável</small>
-{% endif %}
+          <div class="info">
+            <span class="title">{{ task.title }}</span>
+            <small>
+              {% if task.contact %}Responsável: {{ task.contact.name }}{% else %}Sem responsável{% endif %}
+              · Prazo: {% if task.prazo %}{{ task.prazo.strftime('%d/%m/%Y') }}{% else %}sem prazo{% endif %}
+              · Prioridade: {{ {'baixa': 'Baixa', 'media': 'Média', 'alta': 'Alta'}[task.prioridade] }}
+            </small>
+          </div>
 
           <form action="{{ url_for('delete', task_id=task.id) }}" method="post">
             <button class="delete" title="Excluir" type="submit">×</button>
