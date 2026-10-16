@@ -77,9 +77,13 @@
   {% if tasks %}
     <ul class="tasks">
       {% for task in tasks %}
-                <li class="task{% if task.done %} done{% endif %}">
-            <form action="{{ url_for('add_contact') }}" method="post" class="add-form">
-            <button class="toggle" type="submit">✓</button>
+                        <li class="task{% if task.status == 'concluida' %} done{% endif %}">
+                      <form action="{{ url_for('set_status', task_id=task.id) }}" method="post">
+            <select name="status" class="status-select" onchange="this.form.submit()">
+              {% for valor, rotulo in status_opcoes.items() %}
+                <option value="{{ valor }}" {% if task.status == valor %}selected{% endif %}>{{ rotulo }}</option>
+              {% endfor %}
+            </select>
           </form>
 
           <div class="info">

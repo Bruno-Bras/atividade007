@@ -16,7 +16,7 @@ body { background: #0b0f14; color: #e5eef7; margin: 0; }
 .add-form button:hover { filter: brightness(1.1); }
 .tasks { list-style: none; padding: 0; margin: 0; }
 .task {
-  display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
+  display: grid; grid-template-columns: 130px 1fr 40px; align-items: center;
   gap: 8px; padding: 8px 4px; border-bottom: 1px solid #1e293b;
 }
 .task:last-child { border-bottom: 0; }
@@ -42,5 +42,9 @@ body { background: #0b0f14; color: #e5eef7; margin: 0; }
 .add-form input[type="date"] { flex: 0 0 auto; color-scheme: dark; }
 .add-form select {
   padding: 12px; border-radius: 10px; border: 1px solid #334155;
+  background: #0b1220; color: #dbeafe; color-scheme: dark;
+}
+.status-select {
+  width: 100%; padding: 8px; border-radius: 10px; border: 1px solid #334155;
   background: #0b1220; color: #dbeafe; color-scheme: dark;
 }
