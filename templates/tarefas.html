@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Tarefas &amp; Responsáveis{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>Tarefas &amp; Responsáveis</h1>
+    <p class="muted">
+      Visualização das tarefas agrupadas por responsável, com prazo, prioridade e status.
+    </p>
+  </div>
+  <div class="page-head-actions">
+    <a class="btn" href="{{ url_for('home') }}#nova-tarefa">＋ Nova tarefa</a>
+    <a class="btn" href="{{ url_for('cronograma') }}">📊 Cronograma</a>
+  </div>
+</section>
+
+<section class="stats stats-compact">
+  <article class="stat"><span class="stat-num">{{ stats.total }}</span><span class="stat-label">Exibidas</span></article>
+  <article class="stat stat-a_fazer"><span class="stat-num">{{ stats.a_fazer }}</span><span class="stat-label">A fazer</span></article>
+  <article class="stat stat-fazendo"><span class="stat-num">{{ stats.fazendo }}</span><span class="stat-label">Fazendo</span></article>
+  <article class="stat stat-concluida"><span class="stat-num">{{ stats.concluida }}</span><span class="stat-label">Concluídas</span></article>
+  <article class="stat stat-atrasada"><span class="stat-num">{{ stats.atrasada }}</span><span class="stat-label">Atrasadas</span></article>
+</section>
+
+<form class="card filters" method="get" action="{{ url_for('tarefas') }}">
+  <label>
+    <span>Responsável</span>
+    <select name="responsavel">
+      <option value="">Todos</option>
+      <option value="sem" {% if filtro_responsavel == 'sem' %}selected{% endif %}>Sem responsável</option>
+      {% for contato in contatos %}
+        <option value="{{ contato.id }}" {% if filtro_responsavel == contato.id|string %}selected{% endif %}>
+          {{ contato.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    <span>Status</span>
+    <select name="status">
+      <option value="">Todos</option>
+      {% for valor, rotulo in {'a_fazer': 'A fazer', 'fazendo': 'Fazendo', 'concluida': 'Concluída', 'atrasada': 'Atrasada'}.items() %}
+        <option value="{{ valor }}" {% if filtro_status == valor %}selected{% endif %}>{{ rotulo }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    <span>Prioridade</span>
+    <select name="prioridade">
+      <option value="">Todas</option>
+      <option value="baixa" {% if filtro_prioridade == 'baixa' %}selected{% endif %}>Baixa</option>
+      <option value="media" {% if filtro_prioridade == 'media' %}selected{% endif %}>Média</option>
+      <option value="alta" {% if filtro_prioridade == 'alta' %}selected{% endif %}>Alta</option>
+    </select>
+  </label>
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Filtrar</button>
+    <a class="btn" href="{{ url_for('tarefas') }}">Limpar</a>
+  </div>
+</form>
+
+{% if grupos %}
+  {% for grupo in grupos %}
+    <section class="card group-card">
+      <div class="group-head">
+        {% if grupo.contact %}
+          <span class="avatar avatar-lg">{{ grupo.contact.name | initials }}</span>
+          <div>
+            <h2>{{ grupo.contact.name }}</h2>
+            <small class="muted">
+              {{ grupo.contact.email or 'sem e-mail' }} ·
+              {{ grupo.tarefas | length }} tarefa{{ 's' if grupo.tarefas | length != 1 else '' }}
+            </small>
+          </div>
+        {% else %}
+          <span class="avatar avatar-lg avatar-muted">?</span>
+          <div>
+            <h2>Sem responsável</h2>
+            <small class="muted">{{ grupo.tarefas | length }} tarefa{{ 's' if grupo.tarefas | length != 1 else '' }}</small>
+          </div>
+        {% endif %}
+
+        <div class="group-badges">
+          {% for chave in ['a_fazer', 'fazendo', 'concluida', 'atrasada'] %}
+            {% set qtd = grupo.tarefas | selectattr('status_atual', 'equalto', chave) | list | length %}
+            {% if qtd %}
+              <span class="badge status-{{ chave }}">{{ {'a_fazer': 'A fazer', 'fazendo': 'Fazendo', 'concluida': 'Concluída', 'atrasada': 'Atrasada'}[chave] }}: {{ qtd }}</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <ul class="task-list">
+        {% for task in grupo.tarefas %}{% include "_task_item.html" %}{% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
+{% else %}
+  <section class="card">
+    <p class="empty">Nenhuma tarefa encontrada com esses filtros.</p>
+  </section>
+{% endif %}
+{% endblock %}

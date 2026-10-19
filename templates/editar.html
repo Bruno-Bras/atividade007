@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Editar tarefa{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div>
+    <h1>✏️ Editar tarefa</h1>
+    <p class="muted">Atualize a descrição, o responsável, o prazo, a prioridade ou o status.</p>
+  </div>
+  <div class="page-head-actions">
+    <a class="btn" href="{{ url_for('tarefas') }}">← Voltar para tarefas</a>
+    <a class="btn" href="{{ url_for('cronograma') }}">📊 Cronograma</a>
+  </div>
+</section>
+
+<section class="card">
+  <form action="{{ url_for('editar', task_id=tarefa.id) }}" method="post" class="form-grid">
+    <label class="col-full">
+      <span>Descrição *</span>
+      <input type="text" name="title" value="{{ tarefa.title }}" required />
+    </label>
+
+    <label>
+      <span>Responsável</span>
+      <select name="contact_id">
+        <option value="">Sem responsável</option>
+        {% for contato in contatos %}
+          <option value="{{ contato.id }}" {% if tarefa.contact_id == contato.id %}selected{% endif %}>
+            {{ contato.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      <span>Prioridade</span>
+      <select name="prioridade">
+        <option value="baixa" {% if tarefa.prioridade == 'baixa' %}selected{% endif %}>Baixa</option>
+        <option value="media" {% if tarefa.prioridade == 'media' %}selected{% endif %}>Média</option>
+        <option value="alta" {% if tarefa.prioridade == 'alta' %}selected{% endif %}>Alta</option>
+      </select>
+    </label>
+
+    <label>
+      <span>Status</span>
+      <select name="status">
+        {% for valor, rotulo in status_opcoes.items() %}
+          <option value="{{ valor }}" {% if tarefa.status == valor %}selected{% endif %}>{{ rotulo }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      <span>Etapa do projeto</span>
+      <input type="text" name="etapa" value="{{ tarefa.etapa or '' }}" placeholder="Ex.: 3. Fórmula lógica dinâmica" />
+    </label>
+
+    <label>
+      <span>Data inicial</span>
+      <input type="date" name="data_inicio" value="{{ tarefa.data_inicio.isoformat() if tarefa.data_inicio else '' }}" />
+    </label>
+
+    <label>
+      <span>Duração (dias)</span>
+      <input type="number" name="duracao" min="1" step="1" value="{{ tarefa.duracao or '' }}" placeholder="Ex.: 3" />
+    </label>
+
+    <label>
+      <span>Prazo final</span>
+      <input type="date" name="prazo" value="{{ tarefa.prazo.isoformat() if tarefa.prazo else '' }}" />
+    </label>
+
+    <p class="hint col-full">
+      💡 Se você informar a <strong>duração</strong> junto com a data inicial, o prazo é
+      recalculado como <code>Data inicial + Duração − 1</code>.
+    </p>
+
+    <div class="col-full form-actions">
+      <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      <a class="btn" href="{{ url_for('tarefas') }}">Cancelar</a>
+    </div>
+  </form>
+
+  <hr class="sep" />
+
+  <form action="{{ url_for('delete', task_id=tarefa.id) }}" method="post"
+        onsubmit="return confirm('Apagar esta tarefa?');" class="inline-form">
+    <input type="hidden" name="next" value="{{ url_for('tarefas') }}" />
+    <button type="submit" class="btn btn-danger">🗑️ Apagar tarefa</button>
+  </form>
+</section>
+{% endblock %}

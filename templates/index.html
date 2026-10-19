@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Painel{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="hero-kicker">Atividade 007 · Equipe 3</p>
+    <h1>Organize contatos, tarefas e o cronograma em um só lugar</h1>
+    <p class="hero-sub">
+      Cadastre responsáveis, atribua tarefas com prazo e prioridade e acompanhe
+      tudo no Diagrama de Gantt gerado automaticamente.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#nova-tarefa">＋ Nova tarefa</a>
+      <a class="btn" href="{{ url_for('tarefas') }}">👥 Ver responsáveis</a>
+    </div>
+  </div>
+</section>
+
+<section class="stats">
+  <article class="stat">
+    <span class="stat-num">{{ stats.total }}</span>
+    <span class="stat-label">Total de tarefas</span>
+  </article>
+  <article class="stat stat-a_fazer">
+    <span class="stat-num">{{ stats.a_fazer }}</span>
+    <span class="stat-label">A fazer</span>
+  </article>
+  <article class="stat stat-fazendo">
+    <span class="stat-num">{{ stats.fazendo }}</span>
+    <span class="stat-label">Fazendo</span>
+  </article>
+  <article class="stat stat-concluida">
+    <span class="stat-num">{{ stats.concluida }}</span>
+    <span class="stat-label">Concluídas</span>
+  </article>
+  <article class="stat stat-atrasada">
+    <span class="stat-num">{{ stats.atrasada }}</span>
+    <span class="stat-label">Atrasadas</span>
+  </article>
+</section>
+
+<div class="grid-2">
+  <section class="card" id="nova-tarefa">
+    <h2>Nova tarefa</h2>
+    <p class="muted">A tarefa pode (e deve) ser atribuída a um contato responsável.</p>
+
+    <form action="{{ url_for('add') }}" method="post" class="form-grid">
+      <label class="col-full">
+        <span>Descrição *</span>
+        <input type="text" name="title" placeholder="Ex.: Montar o cabeçalho do calendário" required />
+      </label>
+
+      <label>
+        <span>Responsável</span>
+        <select name="contact_id">
+          <option value="">Sem responsável</option>
+          {% for contato in contatos %}
+            <option value="{{ contato.id }}">{{ contato.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>Prioridade</span>
+        <select name="prioridade">
+          {% for valor, rotulo in prioridade_rotulos.items() %}
+            <option value="{{ valor }}" {% if valor == 'media' %}selected{% endif %}>{{ rotulo }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>Status</span>
+        <select name="status">
+          {% for valor, rotulo in status_opcoes.items() %}
+            <option value="{{ valor }}">{{ rotulo }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        <span>Etapa do projeto</span>
+        <input type="text" name="etapa" placeholder="Ex.: 2. Cabeçalho do calendário" />
+      </label>
+
+      <label>
+        <span>Data inicial</span>
+        <input type="date" name="data_inicio" />
+      </label>
+
+      <label>
+        <span>Duração (dias)</span>
+        <input type="number" name="duracao" min="1" step="1" placeholder="Ex.: 3" />
+      </label>
+
+      <label>
+        <span>Prazo final</span>
+        <input type="date" name="prazo" />
+      </label>
+
+      <p class="hint col-full">
+        💡 A <strong>data final</strong> segue a regra do vídeo:
+        <code>Data inicial + Duração − 1</code>. Informe a duração para calcular o prazo
+        automaticamente, ou informe o prazo manualmente.
+      </p>
+
+      <div class="col-full form-actions">
+        <button type="submit" class="btn btn-primary">Adicionar tarefa</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Novo contato</h2>
+    <p class="muted">Os contatos são os responsáveis pelas tarefas.</p>
+
+    <form action="{{ url_for('add_contact') }}" method="post" class="stack">
+      <label>
+        <span>Nome *</span>
+        <input type="text" name="name" placeholder="Nome do contato" required />
+      </label>
+      <label>
+        <span>E-mail (opcional)</span>
+        <input type="email" name="email" placeholder="email@exemplo.com" />
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Cadastrar contato</button>
+      </div>
+    </form>
+
+    <hr class="sep" />
+
+    <h3 class="sub">Contatos cadastrados</h3>
+    {% if contatos %}
+      <ul class="contact-mini">
+        {% for contato in contatos %}
+          <li>
+            <span class="avatar">{{ contato.name | initials }}</span>
+            <span class="contact-mini-info">
+              <strong>{{ contato.name }}</strong>
+              <small>{{ contato.total_tarefas }} tarefa{{ 's' if contato.total_tarefas != 1 else '' }}</small>
+            </span>
+            <a class="link" href="{{ url_for('contatos') }}">gerenciar</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">Nenhum contato cadastrado ainda.</p>
+    {% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Tarefas</h2>
+    <a class="link" href="{{ url_for('tarefas') }}">ver por responsável →</a>
+  </div>
+
+  {% if tarefas %}
+    <ul class="task-list">
+      {% for task in tarefas %}{% include "_task_item.html" %}{% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">Nenhuma tarefa ainda. Adicione a primeira acima. 👆</p>
+  {% endif %}
+</section>
+{% endblock %}
