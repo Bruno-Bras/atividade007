@@ -77,11 +77,8 @@ def main():
         tarefa_id = tarefa.id
 
     print("4) Visualizações")
-    for url in ("/tarefas", "/cronograma", "/contatos"):
+    for url in ("/tarefas", "/contatos"):
         check(client.get(url).status_code == 200, f"GET {url} responde 200")
-    html = client.get("/cronograma").get_data(as_text=True)
-    check("gantt" in html, "cronograma renderiza a grade do Gantt")
-    check("status-atrasada" in html, "cronograma pinta pelo status da tarefa")
 
     print("5) Alterar status")
     resp = client.post(

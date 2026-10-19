@@ -10,6 +10,7 @@ from threading import Timer
 
 from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import inspect, text
 
 
 # --- Configuração do Flask e do banco ---------------------------------------
@@ -293,8 +294,51 @@ def montar_gantt(tarefas):
     }
 
 
+# --- Compatibilidade com bancos criados por versões anteriores --------------
+def atualizar_esquema():
+    """Ajusta uma tabela antiga que ainda tenha colunas fora do modelo atual.
+
+    O db.create_all() só cria tabelas que faltam; ele não altera tabelas que já
+    existem. Um banco de uma versão anterior tinha a coluna "done" como NOT NULL,
+    e por isso todo INSERT falhava com "NOT NULL constraint failed: task.done".
+
+    A tabela é recriada no formato atual e as linhas existentes são preservadas.
+    """
+    inspetor = inspect(db.engine)
+    if "task" not in inspetor.get_table_names():
+        return
+
+    antigas = [coluna["name"] for coluna in inspetor.get_columns("task")]
+    atuais = [coluna.name for coluna in Task.__table__.columns]
+    extras = sorted(set(antigas) - set(atuais))
+    if not extras:
+        return
+
+    print(f"Atualizando o banco: removendo coluna(s) antiga(s): {', '.join(extras)}.")
+
+    padroes = {
+        "prioridade": "'media'",
+        "status": "'a_fazer'",
+        "created_at": "CURRENT_TIMESTAMP",
+    }
+    selecao = ", ".join(
+        nome if nome in antigas else padroes.get(nome, "NULL") for nome in atuais
+    )
+    colunas = ", ".join(atuais)
+
+    with db.engine.begin() as conexao:
+        conexao.execute(text("ALTER TABLE task RENAME TO task_antiga"))
+    db.create_all()
+    with db.engine.begin() as conexao:
+        conexao.execute(text(
+            f"INSERT INTO task ({colunas}) SELECT {selecao} FROM task_antiga"
+        ))
+        conexao.execute(text("DROP TABLE task_antiga"))
+
+
 # Cria o banco na primeira execução.
 with app.app_context():
+    atualizar_esquema()
     db.create_all()
 
 
